@@ -22,10 +22,13 @@ for i in range(N):
     selected = 0
     max_random = 0
     for j in range(d):
+        # distribution graph for the slot machines will shift to the right for the best slot machine
         random_guess = np.random.beta(positive_reward[j] + 1, negative_reward[j] + 1)
         if random_guess > max_random:
             max_random = random_guess
-            selected = j    
+            selected = j   
+
+    # distribute positive reward if the selected slot machine won, negative if not.  
     if slot_machine_data[i][selected] == 1:
         positive_reward[selected] += 1
     else:
