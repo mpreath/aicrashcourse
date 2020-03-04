@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 # predefined win rates for each slot machine (AI model is unaware of these)
 conversion_rates = [0.10, 0.04, 0.13, 0.11, 0.15]
+reward_values = [1,1,1,1,1]
 
 N = 10000                   # number of samples
 d = len(conversion_rates)   # number of slot machines
@@ -36,7 +37,7 @@ for i in range(N):
     machine_selected.append(selected)
     # distribute positive reward if the selected slot machine won, negative if not.  
     if slot_machine_data[i][selected] == 1:
-        positive_reward[selected] += 1
+        positive_reward[selected] += reward_values[selected]
     else:
         negative_reward[selected] += 1
 
@@ -48,6 +49,7 @@ for i in range(N):
 #     print('Machine number ' + str(i+1) + ' was selected ' + str(selected_machines[i]) + ' times')
 # print('Conclusion: Best machine is machine number ' + str(np.argmax(selected_machines) + 1))
 print("\n\nRewards By Machine = ", positive_reward)
+print("\n\nRewards By Machine = ", negative_reward)
 #print("\nTotal Rewards = ")
 #print("\nMachine Selected At Each Round : ", machine_selected)
 
