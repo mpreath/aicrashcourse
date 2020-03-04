@@ -48,8 +48,8 @@ for i in range(N):
 # for i in range(d):
 #     print('Machine number ' + str(i+1) + ' was selected ' + str(selected_machines[i]) + ' times')
 # print('Conclusion: Best machine is machine number ' + str(np.argmax(selected_machines) + 1))
-print("\n\nRewards By Machine = ", positive_reward)
-print("\n\nRewards By Machine = ", negative_reward)
+print("\nRewards By Machine = ", positive_reward)
+print("\nNo Rewards By Machine = ", negative_reward)
 #print("\nTotal Rewards = ")
 #print("\nMachine Selected At Each Round : ", machine_selected)
 
