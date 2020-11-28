@@ -1,71 +1,64 @@
 
 # Thompson Sampling Introduction
-
 import numpy as np
 import matplotlib.pyplot as plt
+from collections import Counter
+import random
 
-# predefined win rates for each slot machine (AI model is unaware of these)
-conversion_rates = [0.10, 0.04, 0.13, 0.11, 0.15]
-reward_values = [1,1,1,1,1]
+# predefined win rates for each strategy (AI model is unaware of these)
+conversion_rates = [0.05, 0.13, 0.09, 0.16, 0.11, 0.04, 0.20, 0.08, 0.01]
+reward_values = [1, 1, 1, 1, 1, 1, 1, 1, 1]
 
-N = 10000                   # number of samples
-d = len(conversion_rates)   # number of slot machines
+N = 10000                   # number of customers
+d = len(conversion_rates)   # number of strategies
 
 # run simulation to create data frame of slot machine wins / losses
-slot_machine_data = np.zeros((N, d))
+X = np.array(np.zeros([N, d]))
 machine_selected = []
 for i in range(N):
     for j in range(d):
         if np.random.rand() < conversion_rates[j]:
-            slot_machine_data[i][j] = 1
+            X[i][j] = 1
 
-# model for determining the best slot machine
-positive_reward = np.zeros(d)
-negative_reward = np.zeros(d)
+# models for determining the best strategy
+# random selection
+strategies_selected_rs = []
+total_reward_rs = 0
 
-for i in range(N):
-    selected = 0
-    max_random = 0
-    for j in range(d):
-        # distribution graph for the slot machines will shift to the right for the best slot machine
-        random_guess = np.random.beta(positive_reward[j] + 1, negative_reward[j] + 1)
-        #print(str(random_guess) + " : " + str(max_random))
-        if random_guess > max_random:
-            max_random = random_guess
-            selected = j   
+# thompson sampling
+strategies_selected_ts = []
+total_reward_ts = 0
+number_of_rewards_0 = [0] * d
+number_of_rewards_1 = [0] * d
 
-    machine_selected.append(selected)
-    # distribute positive reward if the selected slot machine won, negative if not.  
-    if slot_machine_data[i][selected] == 1:
-        positive_reward[selected] += reward_values[selected]
+for n in range(N):
+    # random selection logic
+    strategy_rs = random.randrange(d)               # pick random strategy
+    strategies_selected_rs.append(strategy_rs)      # log the selection
+    reward_rs = X[n, strategy_rs]                   # was it a selected strategy in X? y = 1, n = 0
+    total_reward_rs = total_reward_rs + reward_rs   # add the 1 or 0 to total_reward_rs
+
+    # thompson sampling method
+    strategy_ts = 0     # reset selected strategy
+    max_random = 0      # max random for holding which is the highest selected strategy for that customer
+    for i in range(d):
+        # utilize beta function to analyze learning of each strategy
+        random_beta = random.betavariate(number_of_rewards_1[i] + 1, number_of_rewards_0[i] + 1)
+        # set the strategy with the highest beta
+        if random_beta > max_random:
+            max_random = random_beta
+            strategy_ts = i
+
+    reward_ts = X[n, strategy_ts]                   # was it a selected strategy in X? y = 1, n = 0
+
+    if reward_ts == 1:
+        number_of_rewards_1[strategy_ts] = number_of_rewards_1[strategy_ts] + 1     # set positive reward
     else:
-        negative_reward[selected] += 1
+        number_of_rewards_0[strategy_ts] = number_of_rewards_0[strategy_ts] + 1     # set negative reward
 
-# display the details of the results
-#print(positive_reward)
-# print(negative_reward)
-# selected_machines = positive_reward + negative_reward
-# for i in range(d):
-#     print('Machine number ' + str(i+1) + ' was selected ' + str(selected_machines[i]) + ' times')
-# print('Conclusion: Best machine is machine number ' + str(np.argmax(selected_machines) + 1))
-print("\nRewards By Machine = ", positive_reward)
-print("\nNo Rewards By Machine = ", negative_reward)
-#print("\nTotal Rewards = ")
-#print("\nMachine Selected At Each Round : ", machine_selected)
+    strategies_selected_ts.append(strategy_ts)      # log the selection
+    total_reward_ts = total_reward_ts + reward_ts   # add the 1 or 0 to total_reward_ts
 
-plt.bar(['B1','B2','B3','B4','B5'],positive_reward)
-plt.title('MABP')
-plt.xlabel('Bandits')
-plt.ylabel('Reward By Each Machine')
-plt.show()
-
-from collections import Counter
-print("\nNumber of Times Each Machine Was Selected: ", dict(Counter(machine_selected)))
-print("\n")
-
-plt.hist(machine_selected)
-plt.title('Histogram of machines selected')
-plt.xlabel('Bandits')
-plt.xticks(range(0, 5))
-plt.ylabel('No. Of Times Each Bandit Was Selected')
-plt.show()
+# print Relative Return - how much better was TS than RS?
+relative_return = (total_reward_ts - total_reward_rs) / total_reward_rs * 100
+print("Relative Return: {:.0f} %".format(relative_return))
