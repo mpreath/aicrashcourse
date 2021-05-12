@@ -1,4 +1,4 @@
-# from https://www.machinecurve.com/index.php/2020/02/21/how-to-predict-new-samples-with-your-keras-model/
+# from https://machinelearningmastery.com/tutorial-first-neural-network-python-keras/
 
 from numpy import loadtxt
 from keras.models import Sequential
