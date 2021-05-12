@@ -60,6 +60,9 @@ def route(starting_location, ending_location):
             current_state, next_state]
         Q[current_state, next_state] = Q[current_state, next_state] + alpha * TD
 
+    print("Q-values:")
+    print(Q.astype(int))
+
     calculated_route = [starting_location]
     next_location = starting_location
     while next_location != ending_location:
@@ -74,6 +77,8 @@ def route(starting_location, ending_location):
 def best_route(starting_location, intermediate_location, ending_location):
     return route(starting_location, intermediate_location) + route(intermediate_location, ending_location)[1:]
 
+def best_route(starting_location, ending_location):
+    return route(starting_location, ending_location)
 
 # output the best route
-print('\nRoute: ', best_route('E', 'K', 'G'))
+print('\nRoute: ', best_route('E', 'G'))
